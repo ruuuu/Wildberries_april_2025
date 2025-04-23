@@ -1,7 +1,5 @@
 
 
-
-
 const cart = () => {
 
 
@@ -14,11 +12,13 @@ const cart = () => {
   const closeBtn = cartModal.querySelector('.modal-close'); // кнопка закрытия модалки
 
   const goodsContainer = document.querySelector('.long-goods-list');
+  const cartTable = document.querySelector('.cart-table__goods');
+  
 
 
   const addToCart = (goodId) => {
 
-    const goods = localStorage.getItem('goods') ? JSON.parse(localStorage.getItem('goods')) : [];
+    const goods = localStorage.getItem('goods') ? JSON.parse(localStorage.getItem('goods')) : "[]";
     console.log('goods ', goods);
 
   
@@ -29,12 +29,17 @@ const cart = () => {
     console.log('cart ', cart);
 
 
-    const elem = cart.find((cartElem) => cartElem.id === goodObj.id); // c some() тоже рабтает  cart.some((cartElem) => cartElem.id === goodObj.id);
-    console.log('elem ', elem);
+    console.log('cart.some((cartElem) => cartElem.id === goodObj.id) ', cart.some((cartElem) => cartElem.id === goodObj.id))
 
-    
-    if(elem){
-      elem.сount +=1; // если товар  уже есть в корзине
+
+    if(cart.some((cartElem) => cartElem.id === goodObj.id)){ // если товар  уже есть в корзине
+      cart.map((cartElem) => {
+        if(cartElem.id === goodObj.id){   // если добавляемый элемент уже есть в корзине
+          cartElem.count += 1; // добавляем свойство count
+        }
+        return cartElem; // {id, name, decription, img,  count } или {id, name, decription, img}
+      }) 
+      console.log('cart after add count ', cart) // [ {id, name, decription, img, count }, {id, name, decription, img} ]
     } else{
       goodObj.count = 1; // добавляем свойство count
       cart.push(goodObj);
@@ -45,9 +50,35 @@ const cart = () => {
   };
 
 
+  const renderCartGoods = (cartArray) => {
+    cartTable.innerHTML = '';
+
+    cartArray.forEach(cartElem => {
+      const tr = document.createElement('tr');
+      tr.innerHTML += `
+        <td>${cartElem.name}</td>
+				<td>${cartElem.price}</td>
+				<td><button class="cart-btn-minus">-</button></td>
+        <td>${cartElem.count}</td>
+        <td><button class="cart-btn-plus">+</button></td>
+        <td>${cartElem.price * cartElem.count}</td>
+      `
+      cartTable.append(tr);
+    });
+
+    const total = document.querySelector('.card-table__total');
+    const totalSum = cartArray.reduce((sum, cartItem) => {
+      return  sum + cartItem.count * cartItem.price;
+    }, 0);
+
+    total.textContent = totalSum;
+  };
 
 
   cartBtn.addEventListener('click', () => {
+    const cartArray = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+    renderCartGoods(cartArray);
+    
 
     cartModal.style.display = 'flex';
   });

@@ -365,7 +365,12 @@
 					</tr>
 				</thead>
 				<tbody class="cart-table__goods">
-
+					<td>${cartElem.name}</td>
+					<td>${cartElem.price}</td>
+					<td><button class="cart-btn-minus">-</button></td>
+					<td>${cartElem.count}</td>
+					<td><button class="cart-btn-plus">+</button></td>
+					<td>${cartElem.price * cartElem.count}</td>
 				</tbody>
 				<tfoot>
 					<tr>
