@@ -1,19 +1,14 @@
-
-
 const cart = () => {
 
 
   // в браузере есть программа api dom, доступная чрез объект document(слепок верстки), 
   // он создается когда интерпретатор считает всю верстку
   const cartBtn = document.querySelector('.button-cart'); // кнпока Открыть корзину
-
   const cartModal = document.querySelector('#modal-cart'); // модалка
-
   const closeBtn = cartModal.querySelector('.modal-close'); // кнопка закрытия модалки
-
   const goodsContainer = document.querySelector('.long-goods-list');
   const cartTable = document.querySelector('.cart-table__goods');
-  
+  const modalForm = document.querySelector('.modal-form');
 
 
   const deleteCartItem = (id) => { // id удаляемго элемента
@@ -157,6 +152,34 @@ const cart = () => {
   };
 
 
+
+  const sendForm = () => {
+    const cartArray = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        cart: cartArray ,
+        name: modalForm.nameCustomer.value, // nameCustomer значение атрибута name у поля
+        phone: modalForm.phoneCustomer.value,
+      })
+    })
+    .then(() => {
+      cartModal.style.display = '';
+      localStorage.setItem('cart', [])
+    });
+    
+  }
+
+  
+
+  modalForm.addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      sendForm();
+      modalForm.reset(); // очистка формы после отправки
+  });
+
+
   cartBtn.addEventListener('click', () => {
     const cartArray = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
     renderCartGoods(cartArray);
@@ -201,6 +224,8 @@ const cart = () => {
       }
     });
   }
+
+
 }
 
 
