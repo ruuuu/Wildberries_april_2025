@@ -59,11 +59,31 @@ const cart = () => {
         <td>${cartElem.name}</td>
 				<td>${cartElem.price}</td>
 				<td><button class="cart-btn-minus">-</button></td>
-        <td>${cartElem.count}</td>
+        <td class="cart-count">${cartElem.count}</td>
         <td><button class="cart-btn-plus">+</button></td>
-        <td>${cartElem.price * cartElem.count}</td>
+        <td>${+cartElem.price * +cartElem.count}</td>  <!-- + приводит сроку к числу --> 
+         <td><button class="cart-btn-delete">x</button></td> 
       `
       cartTable.append(tr);
+
+      tr.addEventListener('click', (evt) => { // обработчик повесили не на кнпоку а на  ее родителя(делегирование события)
+       // console.log('evt.taret ', evt.target)
+        if(evt.target.classList.contains('cart-btn-minus')){
+          if(+cartElem.count === 0){
+            cartElem.count = 0;
+            tr.querySelector('.cart-count').textContent = 0;
+          } else{
+            cartElem.count -= 1;
+            tr.querySelector('.cart-count').textContent = cartElem.count;
+          }
+        }
+        if(evt.target.classList.contains('cart-btn-plus')){
+          cartElem.count += 1;
+          tr.querySelector('.cart-count').textContent = cartElem.count;
+        }
+
+        //localStorage.setItem('cart', ) // обновить сторидж
+      });
     });
 
     const total = document.querySelector('.card-table__total');
