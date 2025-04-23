@@ -16,6 +16,63 @@ const cart = () => {
   
 
 
+  const deleteCartItem = (id) => { // id удаляемго элемента
+    const cart = JSON.parse(localStorage.getItem('cart'));
+    const newCart = cart.filter((cartGood) => {
+      return cartGood.id !== id;
+    });
+
+    localStorage.setItem('cart', JSON.stringify(newCart)); // обновляем сторидж
+    renderCartGoods(JSON.parse(localStorage.getItem('cart'))); // перереедриваем корзину
+  };
+
+
+  const plusCartItem = (id) => { // добавляемого элемента в корзину
+    const cart = JSON.parse(localStorage.getItem('cart'));
+    // const good = cart.find((cartGood) => {
+    //   return cartGood.id === id;
+    // });
+    // if(good){
+    //   good.count += 1;
+    // }else{
+    //   cart.push(good);
+    //   good.count = 0;
+    // }   
+
+    // или:
+    const newCart = cart.map((cartElem) => {
+      if(cartElem.id === id){   // если добавляемый элемент уже есть в корзине
+        cartElem.count += 1; // добавляем свойство count
+      }
+      return cartElem; // {id, name, decription, img,  count } или {id, name, decription, img}
+    }); 
+    
+    localStorage.setItem('cart', JSON.stringify(newCart)); // запишем обновленный cart
+    renderCartGoods(JSON.parse(localStorage.getItem('cart'))); // перерисовываем корзину
+  };
+
+
+
+  const minusCartItem = (id) => {
+    const cart = JSON.parse(localStorage.getItem('cart'));
+
+    const newCart = cart.map((cartElem) => {
+      if(cartElem.id === id){   // если добавляемый элемент уже есть в корзине
+        if(cartElem.count > 0){
+          cartElem.count -= 1; // добавляем свойство count
+        }
+      }
+
+      return cartElem; // {id, name, decription, img,  count } или {id, name, decription, img}
+    }); 
+
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    renderCartGoods(JSON.parse(localStorage.getItem('cart'))); // перерисовываем корзину
+  };
+
+
+
+
   const addToCart = (goodId) => {
 
     const goods = localStorage.getItem('goods') ? JSON.parse(localStorage.getItem('goods')) : "[]";
@@ -38,16 +95,17 @@ const cart = () => {
           cartElem.count += 1; // добавляем свойство count
         }
         return cartElem; // {id, name, decription, img,  count } или {id, name, decription, img}
-      }) 
+      }); 
       console.log('cart after add count ', cart) // [ {id, name, decription, img, count }, {id, name, decription, img} ]
     } else{
       goodObj.count = 1; // добавляем свойство count
       cart.push(goodObj);
     }
 
-
     localStorage.setItem('cart', JSON.stringify(cart)); // помещаем обнолвенный массив cart в сториж
   };
+
+
 
 
   const renderCartGoods = (cartArray) => {
@@ -67,24 +125,28 @@ const cart = () => {
       cartTable.append(tr);
 
       tr.addEventListener('click', (evt) => { // обработчик повесили не на кнпоку а на  ее родителя(делегирование события)
-       // console.log('evt.taret ', evt.target)
+        // console.log('evt.taret ', evt.target)
         if(evt.target.classList.contains('cart-btn-minus')){
-          if(+cartElem.count === 0){
-            cartElem.count = 0;
-            tr.querySelector('.cart-count').textContent = 0;
-          } else{
-            cartElem.count -= 1;
-            tr.querySelector('.cart-count').textContent = cartElem.count;
-          }
+          // if(+cartElem.count === 0){
+          //   cartElem.count = 0;
+          //   tr.querySelector('.cart-count').textContent = 0;
+          // } else{
+          //   cartElem.count -= 1;
+          //   tr.querySelector('.cart-count').textContent = cartElem.count;
+          // }
+          minusCartItem(cartElem.id);
         }
         if(evt.target.classList.contains('cart-btn-plus')){
-          cartElem.count += 1;
-          tr.querySelector('.cart-count').textContent = cartElem.count;
+          //cartElem.count += 1;
+          plusCartItem(cartElem.id);
+          //tr.querySelector('.cart-count').textContent = cartElem.count;
         }
-
-        //localStorage.setItem('cart', ) // обновить сторидж
+        if(evt.target.classList.contains('cart-btn-delete')){
+          deleteCartItem(cartElem.id);
+          //tr.remove();
+        }
       });
-    });
+    }); // forEach
 
     const total = document.querySelector('.card-table__total');
     const totalSum = cartArray.reduce((sum, cartItem) => {
@@ -106,6 +168,20 @@ const cart = () => {
 
   closeBtn.addEventListener('click', () => {
     cartModal.style.display = '';
+  });
+
+
+  cartModal.addEventListener('click', (evt) => {
+    if(!evt.target.closest('.modal') && evt.target.classList.contains('overlay')){
+      cart.style.display = '';
+    }
+  });
+
+
+  window.addEventListener('keydown', (evt) => {
+    if(evt.key === 'Escape'){
+      cart.style.display = '';
+    }
   });
 
 
